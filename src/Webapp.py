@@ -1,13 +1,17 @@
 from flask import Flask, render_template, request
-import joblib, pandas as pd,os
+import joblib
+import pandas as pd
+import os
 
 app = Flask(__name__)
 
-# --- SAFELY locate models folder ---
+# -------------------------------
+# 1. Safely locate models folder
+# -------------------------------
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))   # The path where Webapp.py is located
 MODEL_DIR = os.path.join(BASE_DIR, "models")
 
-# Debug: print paths to confirm
+# Debug: print paths (optional, remove in production)
 print("🔍 Base directory:", BASE_DIR)
 print("🔍 Model directory:", MODEL_DIR)
 print("🔍 Files in model directory:", os.listdir(MODEL_DIR))
@@ -17,6 +21,9 @@ clf = joblib.load(os.path.join(MODEL_DIR, "rf_model.joblib"))
 ct = joblib.load(os.path.join(MODEL_DIR, "preprocessor.joblib"))
 le = joblib.load(os.path.join(MODEL_DIR, "label_encoder.joblib"))
 
+# -------------------------------
+# 2. Home route with prediction
+# -------------------------------
 @app.route("/", methods=["GET", "POST"])
 def home():
     prediction = None
@@ -33,7 +40,7 @@ def home():
 
             # --- Prepare input data for prediction ---
             data = {
-                "SensorID": [sensor],                # now a string
+                "SensorID": [sensor],                 # now a string
                 "Period": [request.form.get("Period")],
                 "Value": [float(request.form.get("Value"))]
             }
@@ -51,5 +58,11 @@ def home():
 
     return render_template("index.html", prediction=prediction, confidence=confidence, error=error)
 
+# -------------------------------
+# 3. Render-specific adjustments
+# -------------------------------
 if __name__ == "__main__":
-    app.run(debug=True)
+    # Render assigns a PORT environment variable
+    port = int(os.environ.get("PORT", 5000))
+    # Must set host to 0.0.0.0 so it’s accessible externally
+    app.run(host="0.0.0.0", port=port, debug=True)
