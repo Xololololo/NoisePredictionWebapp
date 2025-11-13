@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Noise Prediction App</title>
+    <!-- Link external CSS -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+
+<header>
+    <img src="{{ url_for('static', filename='images/logo.png') }}" alt="Company Logo">
+    <h2>Noise Prediction Dashboard</h2>
+</header>
+
+<main>
+    <h1>Noise Prediction App</h1>
+    <p class="description">Input sensor data below to predict the possible reason for exceedance.</p>
+
+    <!-- Prediction Form Card -->
+    <div class="card">
+        <form method="POST">
+            <label>Sensor ID:</label>
+            <select name="SensorID" required>
+                <option value="EN-N01">EN-N01</option>
+                <option value="EN-N02">EN-N02</option>
+                <option value="EN-N03">EN-N03</option>
+            </select>
+
+            <label>Period:</label>
+            <select name="Period" required>
+                <option value="Day">Day</option>
+                <option value="Night">Night</option>
+            </select>
+
+            <label>Value (dBA):</label>
+            <input type="number" name="Value" step="any" required>
+
+            <button type="submit">Predict</button>
+        </form>
+
+        <!-- Prediction Results -->
+        {% if prediction %}
+            <div class="result {{ prediction.replace(' ', '-') }}">
+                <p>Possible Reason: {{ prediction }}</p>
+                <p>Confidence: {{ confidence }}%</p>
+            </div>
+        {% elif error %}
+            <div class="result" style="background-color: #f44336; color: #fff;">
+                <p>Error: {{ error }}</p>
+            </div>
+        {% endif %}
+    </div>
+
+    <!-- Optional feature cards -->
+    <div class="card-container">
+        <div class="card" onclick="alert('View Prediction History')">
+            <h3>History</h3>
+            <p>See past exceedance predictions.</p>
+        </div>
+        <div class="card" onclick="alert('View Charts')">
+            <h3>Charts</h3>
+            <p>Visualize noise trends over time.</p>
+        </div>
+    </div>
+
+</main>
+
+<footer>
+    &copy; 2025 Obayashi-STEC Joint Venture. All rights reserved.
+</footer>
+
+</body>
+</html>
